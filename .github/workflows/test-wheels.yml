@@ -1,0 +1,55 @@
+name: Test wheels
+
+on:
+  workflow_dispatch:
+    inputs:
+      artifact_id:
+        description: 'ID of the qrtifact'
+        required: true
+        type: string
+
+jobs:
+  test_wheels:
+    name: Test wheels on ${{ matrix.os }} - py${{ matrix.py }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+        py: ['3.9', '3.10', '3.11']
+        include:
+          - name: 'Linux'
+            os: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.py }}
+
+      - name: Extract wheels
+        run: |
+          curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -H "Authorization: Bearer ${{ secrets.DOWNLOAD_ARTIFACT_PAT }}" \
+             --output artifact.zip \
+            https://api.github.com/repos/hsorby/swigzinc/actions/artifacts/${{ inputs.artifact_id }}/zip
+
+          ls artifact*
+          unzip artifact.zip
+          ls
+
+      - name: Install wheel
+        run: |
+          py_ver=${{ matrix.py }}
+          py_num=${py_ver/./}
+          pip install cmlibs.zinc-*-cp${py_num}-cp${py_num}-manylinux_2_28_x86_64.whl
+
+      - name: Setup OpenGL
+        run: |
+            sudo apt-get install libopengl0 libglu1-mesa
+
+      - name: Test import
+        run: |
+           python -c "from cmlibs.zinc.context import Context"

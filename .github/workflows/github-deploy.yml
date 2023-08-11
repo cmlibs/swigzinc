@@ -1,0 +1,58 @@
+name: Build and upload to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag of  the wheel to build'
+        required: true
+        type: string
+
+jobs:
+  build_wheels:
+    if: github.repository == 'cmlibs/swigzinc'
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+        include:
+          - name: 'Linux'
+            os: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Setup for cibuildwheel
+        id: setup
+        run: |
+          echo "Setup commands for cibuildwheel."
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.14.1
+        env:
+          CIBW_BUILD: "cp39-manylinux_x86_64 cp310-manylinux_x86_64 cp311-manylinux_x86_64"
+          CIBW_BEFORE_ALL_LINUX: "source ./res/setup_linux.sh ${{ inputs.tag }}"
+          # CIBW_BUILD_VERBOSITY: 1
+          CIBW_MANYLINUX_X86_64_IMAGE: "quay.io/pypa/manylinux_2_28_x86_64"
+          CIBW_BEFORE_BUILD_LINUX: pip install renamewheel
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: renamewheel -w {dest_dir} {wheel}
+          CIBW_ARCHS: "auto64"
+        # valid inputs are ['package-dir', 'output-dir', 'config-file', 'only']
+        with:
+          package-dir: res
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
+      - name: Publish Python wheels
+        shell: bash
+        env:
+          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+        run: |
+          python -m pip install twine
+          twine upload --skip-existing ./wheelhouse/*.whl

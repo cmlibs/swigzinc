@@ -37,3 +37,6 @@ CMakeLists.txt.user*
 .project
 .pydevproject
 
+# Python built wheels
+wheelhouse
+

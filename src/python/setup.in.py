@@ -46,7 +46,7 @@ setup(
     license='Mozilla Public License 2.0 (MPL 2.0)',
     description=doclines[0],
     classifiers=classifiers.split("\n"),
-    long_description=open('README.txt').read(),
+    long_description=open('README.rst').read(),
     long_description_content_type='text/x-rst',
     distclass=BinaryDistribution,
     include_package_data=True,

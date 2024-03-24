@@ -45,7 +45,7 @@ setup(
     url='https://cmlibs.org',
     license='Mozilla Public License 2.0 (MPL 2.0)',
     description=doclines[0],
-    classifiers=classifiers.split("\n"),
+    classifiers=[cl for cl in classifiers.split('\n') if cl],
     long_description=open('README.rst').read(),
     long_description_content_type='text/x-rst',
     distclass=BinaryDistribution,

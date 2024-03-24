@@ -57,7 +57,7 @@ setup(
     package_data={
         'cmlibs.zinc': ['libzinc*.dylib', 'libzinc*.so', '_*.so'],
     },
-    classifiers=classifiers.split("\n"),
+    classifiers=[cl for cl in classifiers.split('\n') if cl],
     long_description=open('README.rst').read(),
     long_description_content_type='text/x-rst',
     include_package_data=True,

@@ -4,8 +4,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-cmake_minimum_required(VERSION 3.10.0)
-cmake_policy(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.18.0)
+cmake_policy(VERSION 3.18.0)
 
 if(POLICY CMP0078)
     cmake_policy(SET CMP0078 NEW)

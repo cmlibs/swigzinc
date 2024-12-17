@@ -146,7 +146,7 @@ if(WIN32)
     endif()
 endif()
 if(APPLE)
-    set(PYZINC_ARCHITECTURE universal)
+    set(PYZINC_ARCHITECTURE ${CMAKE_HOST_SYSTEM_PROCESSOR})
 endif()
 
 # Get a pretty system name.

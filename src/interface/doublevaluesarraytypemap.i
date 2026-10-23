@@ -1,4 +1,5 @@
 /**
+/**
  * doublevaluesarraytypemap.i
  *
  * Swig interface file for double array.
@@ -82,7 +83,7 @@
 	$1 = PyLong_AsLong($input);
 	if ($1 < 0)
 	{
-		PyErr_SetString(PyExc_ValueError, "Positive integer expected");
+		PyErr_SetString(PyExc_ValueError, "Non-negative integer expected");
 		return NULL;
 	}
 	$2 = new double[$1];
@@ -149,7 +150,7 @@
 	$1 = PyLong_AsLong($input);
 	if ($1 < 0)
 	{
-		PyErr_SetString(PyExc_ValueError, "Positive integer expected");
+		PyErr_SetString(PyExc_ValueError, "Non-negative integer expected");
 		return NULL;
 	}
 	$2 = new double[$1];

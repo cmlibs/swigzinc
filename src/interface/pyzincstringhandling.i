@@ -170,7 +170,7 @@ free($1);
 	}
 	else
 	{
-		PyErr_SetString(PyExc_TypeError,"Not a list, nor a single string value");
+		PyErr_SetString(PyExc_TypeError, "Value is not a single string nor a list of strings");
 		$2 = 0;
 		return NULL;
 	}

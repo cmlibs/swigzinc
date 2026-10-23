@@ -10,7 +10,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-
 %typemap(newfree) char * "cmzn_deallocate($1);"
 /*
 %typemap(newfree) char * {
@@ -51,11 +50,6 @@ free($1);
         $1 = PyBytes_AsString($input);
         $2 = PyBytes_Size($input);
     }
-    else if (PyString_Check($input))
-    {
-        $1 = PyString_AsString($input);
-        $2 = PyString_Size($input);
-    }
     else if (PyUnicode_Check($input))
     {
 %#if PY_VERSION_HEX < 0x03070000
@@ -85,13 +79,11 @@ free($1);
 
 %typemap(argout)(const void **buffer_out, unsigned int *buffer_length_out)
 {
-	const char *mystring = (char *)(*$1);
+	const char *mystring = reinterpret_cast<const char *>(*$1);
 	PyObject *o = Py_None;
 	if (mystring)
 	{
-	   o = PyBytes_FromString(mystring);
-	   if (o == 0)
-	       o = PyString_FromString(mystring);
+	   o = PyBytes_FromStringAndSize(mystring, *$2);
 	}
 	if ((!$result) || ($result == Py_None))
 	{
@@ -123,18 +115,7 @@ free($1);
 %typemap(in) (int valuesCount, const char **valuesIn)
 {
 	/* Applying in array of variable size typemap */
-	if (PyString_Check($input))
-	{
-		$1 = 1;
-		$2 = new char*[1];
-		PyObject *o = $input;
-		
-		char *temp_string = PyString_AsString(o);
-		int length = strlen(temp_string);
-		$2[0] = new char[length + 1];
-		strcpy($2[0], temp_string);
-	}
-	else if (PyUnicode_Check($input))
+    if (PyUnicode_Check($input))
 	{
 		$1 = 1;
 		$2 = new char*[1];
@@ -161,14 +142,7 @@ free($1);
 		for (int i = 0; i < $1; i++)
 		{
 			PyObject *o = PyList_GetItem($input,i);
-			if (PyString_Check(o))
-			{
-				char *temp_string = PyString_AsString(o);
-				int length = strlen(temp_string);
-				$2[i] = new char[length + 1];
-				strcpy($2[i], temp_string);
-			}
-			else if (PyUnicode_Check(o))
+			if (PyUnicode_Check(o))
 			{
 				Py_ssize_t length;
 				const char* temp_string = PyUnicode_AsUTF8AndSize(o, &length);
@@ -196,7 +170,7 @@ free($1);
 	}
 	else
 	{
-		PyErr_SetString(PyExc_TypeError,"Not a list, nor a single string value");
+		PyErr_SetString(PyExc_TypeError, "Value is not a single string nor a list of strings");
 		$2 = 0;
 		return NULL;
 	}
@@ -217,11 +191,7 @@ free($1);
 %typemap(in) (const char *name)
 {
     PyObject *o = $input;
-	if (PyString_Check($input))
-	{
-        $1 = PyString_AsString(o);
-	}
-	else if (PyUnicode_Check($input))
+	if (PyUnicode_Check($input))
 	{
 		Py_ssize_t length;
         $1 = const_cast<char *>(PyUnicode_AsUTF8AndSize(o, &length));

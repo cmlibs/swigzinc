@@ -25,7 +25,7 @@
 %extend CMLibs::Zinc::Streaminformation {
 	CMLibs::Zinc::StreamresourceMemory createStreamresourceMemoryBuffer(const void *buffer, unsigned int buffer_length)
 	{
-		return  $self->createStreamresourceMemoryBufferCopy(buffer, buffer_length);
+		return $self->createStreamresourceMemoryBufferCopy(buffer, buffer_length);
 	}
 }
 

@@ -13,41 +13,27 @@
 
 %typemap(in) (int valuesCount, const int *valuesIn)
 {
-	/* Check if is a list */
-	if (PyInt_Check($input) || PyLong_Check($input))
+	/* Check if it is a single long value or a list */
+	if (PyLong_Check($input))
 	{
 		$1 = 1;
 		$2 = new int[$1];
-		PyObject *o = $input;
-		if (PyLong_Check(o))
-		{
-			$2[0] = PyLong_AsLong(o);
-		}
-		else if (PyInt_Check(o))
-		{
-			$2[0] = PyInt_AsLong(o);
-		}
-		else 
-		{
-			PyErr_SetString(PyExc_TypeError,"value must be a long");
-			delete[] $2;
-			return NULL;
-		}
+		$2[0] = PyLong_AsLong($input);
 	}
 	else if (PyList_Check($input)) 
 	{
 		$1 = PyList_Size($input);
 		$2 = new int[$1];
-		for (int i = 0; i < $1; i++) 
+		for (int i = 0; i < $1; i++)
 		{
 			PyObject *o = PyList_GetItem($input,i);
-			if (PyInt_Check(o))
+			if (PyLong_Check(o))
 			{
-				$2[i] = PyInt_AsLong(PyList_GetItem($input,i));
+				$2[i] = PyLong_AsLong(o);
 			}
 			else 
 			{
-				PyErr_SetString(PyExc_TypeError,"list must contain long");
+				PyErr_SetString(PyExc_TypeError, "list must contain integers");
 				delete[] $2;
 				return NULL;
 			}
@@ -55,7 +41,7 @@
 	}
 	else
 	{
-		PyErr_SetString(PyExc_TypeError,"not a list");
+		PyErr_SetString(PyExc_TypeError, "value must be a single integer or a list of integers");
 		return NULL;
 	}
 }
@@ -75,15 +61,15 @@
 // and allocates array to accept output; see argout-handler
 %typemap(in, numinputs=1) (int valuesCount, int *valuesOut)
 {
-	if (!PyInt_Check($input))
+	if (!PyLong_Check($input))
 	{
 		PyErr_SetString(PyExc_ValueError, "Expecting an integer");
 		return NULL;
 	}
-	$1 = PyInt_AsLong($input);
+	$1 = PyLong_AsLong($input);
 	if ($1 < 0)
 	{
-		PyErr_SetString(PyExc_ValueError, "Positive integer expected");
+		PyErr_SetString(PyExc_ValueError, "Non-negative integer expected");
 		return NULL;
 	}
 	$2 = new int[$1];
@@ -94,14 +80,14 @@
 	PyObject *o;
 	if ($1 == 1)
 	{
-		o = PyInt_FromLong(*$2);
+		o = PyLong_FromLong(*$2);
 	}
 	else
 	{
 		o = PyList_New($1);
 		for (int i = 0 ; i < $1; i++)
 		{
-			PyList_SET_ITEM(o, i, PyInt_FromLong($2[i])); // steals reference
+			PyList_SET_ITEM(o, i, PyLong_FromLong($2[i])); // steals reference
 		}
 	}
 	if ((!$result) || ($result == Py_None))
@@ -147,7 +133,7 @@
 	o = PyList_New(3);
 	for (int i = 0 ; i < 3; i++)
 	{
-		PyList_SET_ITEM(o, i, PyInt_FromLong($1[i])); // steals reference
+		PyList_SET_ITEM(o, i, PyLong_FromLong($1[i])); // steals reference
 	}
 	if ((!$result) || ($result == Py_None))
 	{

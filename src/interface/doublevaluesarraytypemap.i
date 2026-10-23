@@ -14,7 +14,7 @@
 %typemap(in) (int valuesCount, const double *valuesIn)
 {
 	/* Applying in array of variable size typemap */
-	if (PyInt_Check($input) || PyFloat_Check($input) || PyLong_Check($input))
+	if (PyFloat_Check($input) || PyLong_Check($input))
 	{
 		$1 = 1;
 		$2 = new double[$1];
@@ -27,13 +27,9 @@
 		{
 			$2[0] = PyLong_AsDouble(o);
 		}
-		else if (PyInt_Check(o))
-		{
-			$2[0] = static_cast<double>(PyInt_AsLong(o));
-		}
 		else
 		{
-			PyErr_SetString(PyExc_TypeError,"value must be a number");
+			PyErr_SetString(PyExc_TypeError, "value must be a number");
 			delete[] $2;
 			return NULL;
 		}
@@ -53,13 +49,9 @@
 			{
 				$2[i] = PyLong_AsDouble(o);
 			}
-			else if (PyInt_Check(o))
-			{
-				$2[i] = static_cast<double>(PyInt_AsLong(o));
-			}
 			else
 			{
-				PyErr_SetString(PyExc_TypeError,"list may only contain numbers");
+				PyErr_SetString(PyExc_TypeError, "list may only contain numbers");
 				delete[] $2;
 				return NULL;
 			}
@@ -67,7 +59,7 @@
 	}
 	else
 	{
-		PyErr_SetString(PyExc_TypeError,"not a list, or single value");
+		PyErr_SetString(PyExc_TypeError, "value must be a single number or a list of numbers");
 		return NULL;
 	}
 };
@@ -82,12 +74,12 @@
 %typemap(in, numinputs=1) (int valuesCount, double *valuesOut)
 {
 	/* Applying out array of variable size typemap */
-	if (!PyInt_Check($input))
+	if (!PyLong_Check($input))
 	{
 		PyErr_SetString(PyExc_ValueError, "Expecting an integer");
 		return NULL;
 	}
-	$1 = PyInt_AsLong($input);
+	$1 = PyLong_AsLong($input);
 	if ($1 < 0)
 	{
 		PyErr_SetString(PyExc_ValueError, "Positive integer expected");
@@ -149,12 +141,12 @@
 %typemap(in, numinputs=1) (int valuesCount, double *minimumValuesOut, double *maximumValuesOut)
 {
 	/* Applying minimum, maximum array out typemap */
-	if (!PyInt_Check($input))
+	if (!PyLong_Check($input))
 	{
 		PyErr_SetString(PyExc_ValueError, "Expecting an integer");
 		return NULL;
 	}
-	$1 = PyInt_AsLong($input);
+	$1 = PyLong_AsLong($input);
 	if ($1 < 0)
 	{
 		PyErr_SetString(PyExc_ValueError, "Positive integer expected");
@@ -233,13 +225,9 @@
 			{
 				$1[i] = PyLong_AsDouble(o);
 			}
-			else if (PyInt_Check(o))
-			{
-				$1[i] = static_cast<double>(PyInt_AsLong(o));
-			}
 			else
 			{
-				PyErr_SetString(PyExc_TypeError,"list may only contain a numbers");
+				PyErr_SetString(PyExc_TypeError, "list may only contain numbers");
 				delete[] $1;
 				return NULL;
 			}
@@ -247,7 +235,7 @@
 	}
 	else
 	{
-		PyErr_SetString(PyExc_TypeError,"not a list of size 3");
+		PyErr_SetString(PyExc_TypeError, "not a list of size 3");
 		return NULL;
 	}
 };
@@ -322,13 +310,9 @@
 			{
 				$1[i] = PyLong_AsDouble(o);
 			}
-			else if (PyInt_Check(o))
-			{
-				$1[i] = static_cast<double>(PyInt_AsLong(o));
-			}
 			else
 			{
-				PyErr_SetString(PyExc_TypeError,"list may only contain a numbers");
+				PyErr_SetString(PyExc_TypeError, "list may only contain numbers");
 				delete[] $1;
 				return NULL;
 			}
@@ -336,7 +320,7 @@
 	}
 	else
 	{
-		PyErr_SetString(PyExc_TypeError,"not a list of size 4");
+		PyErr_SetString(PyExc_TypeError, "not a list of size 4");
 		return NULL;
 	}
 };
@@ -406,13 +390,9 @@
 			{
 				$1[i] = PyLong_AsDouble(o);
 			}
-			else if (PyInt_Check(o))
-			{
-				$1[i] = static_cast<double>(PyInt_AsLong(o));
-			}
 			else
 			{
-				PyErr_SetString(PyExc_TypeError,"list may only contain a numbers");
+				PyErr_SetString(PyExc_TypeError, "list may only contain numbers");
 				delete[] $1;
 				return NULL;
 			}
@@ -420,7 +400,7 @@
 	}
 	else
 	{
-		PyErr_SetString(PyExc_TypeError,"not a list of size 16");
+		PyErr_SetString(PyExc_TypeError, "not a list of size 16");
 		return NULL;
 	}
 };
